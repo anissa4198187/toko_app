@@ -10,11 +10,8 @@ class AuthController extends Controller
 {
     public function login()
     {
-        if (Auth::check()) {
-            return redirect('admin/barang');
-        } else {
-            return view('login');
-        }
+
+        return view('login');
     }
 
 
@@ -25,8 +22,17 @@ class AuthController extends Controller
             'password' => $req->input('password'),
         ];
 
-        if (Auth::attempt($data)) {
-            return redirect('admin/barang');
+        if (auth()->attempt($data)) {
+
+            // return redirect('admin/barang');
+            $req->session()->regenerate();
+            if (auth()->user()->role_id === 1) {
+                // jika user superadmin
+                return redirect()->intended('/admin/barang');
+            } else {
+                // jika user pegawai
+                return redirect()->intended('/');
+            }
         } else {
             return redirect('admin/login')->with('error', 'Email atau Password tidak sesuai');
         }
